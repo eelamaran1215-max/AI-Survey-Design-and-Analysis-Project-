@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Survey Lab — Design & Analysis</title>
+<style>
+:root {
+  --site-primary: #5146E5;
+  --site-on-primary: #FFFFFF;
+  --site-secondary: #DDF5EC;
+  --site-on-secondary: #163F35;
+  --site-background: #F7F8FC;
+  --site-on-background: #20223A;
+  --site-font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-font-heading: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-heading-scale: 1;
+  --site-spacing-scale: 1;
+  --site-radius-scale: 1;
+  --site-decoration-opacity: 1;
+  --surface: light-dark(#FFFFFF, #1C1D2A);
+  --surface-2: light-dark(#F0F1FA, #26283A);
+  --text-muted: light-dark(#686B83, #B0B3C9);
+  --line: light-dark(#E4E6F0, #393B50);
+  --accent-soft: light-dark(#EEEDFF, #302D54);
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--site-font-body); background: var(--site-background); color: var(--site-on-background); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+#app { min-height: 100vh; width: 100%; background-color: var(--site-background); color: var(--site-on-background); border-radius: 0; overflow: hidden; }
+.topbar { height: 76px; display:flex; align-items:center; justify-content:space-between; padding: 0 calc(5vw * var(--site-spacing-scale)); border-bottom:1px solid var(--line); background:var(--surface); gap:20px; }
+.brand { display:flex; align-items:center; gap:12px; font-weight:800; letter-spacing:-.5px; font-size:19px; }
+.logo { width:38px; height:38px; border-radius: calc(12px * var(--site-radius-scale)); display:grid; place-items:center; color:var(--site-on-primary); background:var(--site-primary); font-size:20px; }
+.nav { display:flex; gap:28px; align-items:center; color:var(--text-muted); font-size:14px; }
+.nav a { color:inherit; text-decoration:none; }
+.nav a:hover { color:var(--site-primary); }
+.pill { background:var(--site-secondary); color:var(--site-on-secondary); border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; }
+main { max-width:1180px; margin:auto; padding: 52px 24px 76px; }
+.eyebrow { color:var(--site-primary); text-transform:uppercase; letter-spacing:1.8px; font-size:11px; font-weight:800; }
+.hero { display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:44px; margin-bottom:48px; }
+h1 { font-family:var(--site-font-heading); font-size:calc(54px * var(--site-heading-scale)); line-height:1.04; letter-spacing:-2.8px; margin:15px 0 18px; }
+h1 span { color:var(--site-primary); }
+.lead { color:var(--text-muted); font-size:17px; line-height:1.75; max-width:560px; }
+.actions { display:flex; gap:12px; margin-top:25px; flex-wrap:wrap; }
+.btn { border:1px solid var(--line); background:var(--surface); color:var(--site-on-background); padding:12px 17px; border-radius:calc(12px * var(--site-radius-scale)); font-weight:700; font-size:13px; }
+.btn.primary { background:var(--site-primary); border-color:var(--site-primary); color:var(--site-on-primary); }
+.btn:hover { transform:translateY(-1px); filter:brightness(1.04); }
+.preview-card { background:var(--surface); border:1px solid var(--line); padding:22px; border-radius:calc(22px * var(--site-radius-scale)); box-shadow:0 20px 60px rgba(40,36,100,.09); position:relative; }
+.card-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+.card-head h3 { margin:0; font-size:15px; }
+.live { color:#15835F; font-size:11px; font-weight:800; }
+.metric-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+.metric { background:var(--surface-2); padding:16px; border-radius:calc(14px * var(--site-radius-scale)); }
+.metric small { color:var(--text-muted); display:block; font-size:11px; margin-bottom:9px; }
+.metric strong { font-size:25px; letter-spacing:-1px; }
+.metric em { display:block; color:#14946C; font-size:11px; font-style:normal; margin-top:5px; }
+.chart { margin-top:17px; background:var(--surface-2); border-radius:calc(14px * var(--site-radius-scale)); padding:16px; }
+.chart-title { font-size:12px; font-weight:700; margin-bottom:14px; }
+.bar-row { display:grid; grid-template-columns:92px 1fr 34px; gap:9px; align-items:center; font-size:11px; color:var(--text-muted); margin:12px 0; }
+.track { height:8px; background:var(--line); border-radius:99px; overflow:hidden; }
+.fill { height:100%; border-radius:99px; background:var(--site-primary); }
+.section-title { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:20px; }
+h2 { font-size:calc(29px * var(--site-heading-scale)); letter-spacing:-1px; margin:9px 0 0; }
+.section-title p { color:var(--text-muted); font-size:13px; max-width:430px; line-height:1.6; margin:0; }
+.workspace { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.panel { border:1px solid var(--line); border-radius:calc(18px * var(--site-radius-scale)); background:var(--surface); padding:24px; }
+.panel h3 { font-size:17px; margin:0 0 7px; }
+.sub { color:var(--text-muted); font-size:12px; line-height:1.6; margin:0 0 20px; }
+.field-label { display:block; font-size:12px; font-weight:700; margin:15px 0 8px; }
+input[type="text"], select, textarea { width:100%; border:1px solid var(--line); background:var(--surface); color:var(--site-on-background); border-radius:calc(10px * var(--site-radius-scale)); padding:12px; outline:none; }
+textarea { resize:vertical; min-height:74px; }
+input:focus, select:focus, textarea:focus { border-color:var(--site-primary); box-shadow:0 0 0 3px color-mix(in srgb, var(--site-primary) 15%, transparent); }
+.options { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.option { border:1px solid var(--line); padding:10px 11px; border-radius:10px; font-size:12px; display:flex; gap:8px; align-items:center; }
+.option input { accent-color:var(--site-primary); }
+.question-list { display:flex; flex-direction:column; gap:10px; }
+.question { border:1px solid var(--line); border-radius:12px; padding:13px; display:flex; justify-content:space-between; gap:10px; align-items:center; font-size:12px; }
+.question b { color:var(--site-primary); margin-right:8px; }
+.tag { font-size:10px; padding:5px 8px; border-radius:99px; background:var(--accent-soft); color:var(--site-primary); white-space:nowrap; }
+.notice { background:var(--site-secondary); color:var(--site-on-secondary); padding:13px 15px; border-radius:12px; font-size:12px; line-height:1.6; margin-top:15px; }
+.result { margin-top:16px; border:1px solid var(--line); border-radius:12px; padding:14px; font-size:12px; line-height:1.65; color:var(--text-muted); display:none; }
+.result.show { display:block; }
+.result strong { color:var(--site-on-background); }
+footer { border-top:1px solid var(--line); padding:24px; text-align:center; color:var(--text-muted); font-size:11px; }
+@media (max-width:760px) {
+ .topbar { height:auto; padding:16px 20px; flex-wrap:wrap; }
+ .nav { order:3; width:100%; gap:18px; overflow:auto; padding-top:6px; }
+ main { padding:34px 17px 52px; }
+ .hero { grid-template-columns:1fr; gap:28px; }
+ h1 { font-size:calc(43px * var(--site-heading-scale)); letter-spacing:-2px; }
+ .workspace { grid-template-columns:1fr; }
+ .section-title { align-items:start; flex-direction:column; }
+ .lead { font-size:15px; }
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">✳</div><span>survey<span style="color:var(--site-primary)">lab</span></span></div>
+  <nav class="nav"><a href="#overview">Overview</a><a href="#designer">Survey designer</a><a href="#analysis">Analysis</a></nav>
+  <span class="pill">AI-POWERED WORKSPACE</span>
+</header>
+<main>
+<section class="hero" id="overview">
+ <div>
+  <div class="eyebrow">Research, made clearer</div>
+  <h1>Ask better.<br><span>Understand more.</span></h1>
+  <p class="lead">A smarter workspace to design thoughtful surveys, organize responses, and turn feedback into useful insights — all in one place.</p>
+  <div class="actions"><button class="btn primary" onclick="document.querySelector('#designer').scrollIntoView({behavior:'smooth'})">＋ Create a survey</button><button class="btn" onclick="document.querySelector('#analysis').scrollIntoView({behavior:'smooth'})">Explore analysis ↓</button></div>
+ </div>
+ <div class="preview-card">
+  <div class="card-head"><h3>Research snapshot</h3><span class="live">● DEMO DATA</span></div>
+  <div class="metric-grid">
+   <div class="metric"><small>Responses collected</small><strong>248</strong><em>↗ 18% this week</em></div>
+   <div class="metric"><small>Completion rate</small><strong>82%</strong><em>↗ 6% this week</em></div>
+  </div>
+  <div class="chart"><div class="chart-title">What matters most to respondents?</div>
+   <div class="bar-row"><span>Ease of use</span><div class="track"><div class="fill" style="width:86%"></div></div><b>86%</b></div>
+   <div class="bar-row"><span>Reliability</span><div class="track"><div class="fill" style="width:72%"></div></div><b>72%</b></div>
+   <div class="bar-row"><span>Price</span><div class="track"><div class="fill" style="width:58%"></div></div><b>58%</b></div>
+  </div>
+ </div>
+</section>
+<section id="designer">
+ <div class="section-title"><div><div class="eyebrow">01 / Build your questionnaire</div><h2>Survey designer</h2></div><p>Start with a research goal. Generate a draft structure and adjust the questions to fit your audience.</p></div>
+ <div class="workspace">
+  <div class="panel">
+   <h3>Research brief</h3><p class="sub">Tell the survey builder what you want to learn.</p>
+   <label class="field-label" for="topic">Survey topic</label><input id="topic" type="text" value="Student experience with online learning" placeholder="e.g. Student experience with online learning">
+   <label class="field-label" for="audience">Target audience</label><select id="audience"><option>College students</option><option>School students</option><option>Teachers and educators</option><option>Customers</option><option>Employees</option><option>General public</option></select>
+   <label class="field-label" for="goal">Main research goal</label><textarea id="goal" placeholder="What would you like to discover?">Understand satisfaction, challenges, and preferred improvements.</textarea>
+   <label class="field-label">Question types</label>
+   <div class="options">
+    <label class="option"><input type="checkbox" value="Multiple choice" checked> Multiple choice</label>
+    <label class="option"><input type="checkbox" value="Rating scale" checked> Rating scale</label>
+    <label class="option"><input type="checkbox" value="Open-ended" checked> Open-ended</label>
+    <label class="option"><input type="checkbox" value="Yes / No"> Yes / No</label>
+   </div>
+   <div class="actions"><button class="btn primary" onclick="generateSurvey()">✦ Generate survey draft</button><button class="btn" onclick="resetSurvey()">Reset</button></div>
+   <div id="surveyNotice" class="result"></div>
+  </div>
+  <div class="panel">
+   <h3>Questionnaire preview</h3><p class="sub">A sample question set based on your research brief.</p>
+   <div id="questionList" class="question-list">
+    <div class="question"><span><b>Q1</b> How often do you use online learning platforms?</span><span class="tag">Choice</span></div>
+    <div class="question"><span><b>Q2</b> Rate your overall learning experience.</span><span class="tag">Rating</span></div>
+    <div class="question"><span><b>Q3</b> What is your biggest learning challenge?</span><span class="tag">Open-ended</span></div>
+    <div class="question"><span><b>Q4</b> Would you recommend online learning?</span><span class="tag">Yes / No</span></div>
+   </div>
+   <div class="notice">Tip: Keep questions neutral, use plain language, and collect only information needed for your research.</div>
+  </div>
+ </div>
+</section>
+<section id="analysis" style="margin-top:54px">
+ <div class="section-title"><div><div class="eyebrow">02 / Turn responses into insights</div><h2>Analysis studio</h2></div><p>Explore a sample response dataset, see a quick summary, and export a starter CSV to practice your analysis.</p></div>
+ <div class="workspace">
+  <div class="panel">
+   <h3>Sample response explorer</h3><p class="sub">Illustrative data for a student online-learning survey. These are not real survey results.</p>
+   <label class="field-label" for="metricSelect">Analyze question</label>
+   <select id="metricSelect" onchange="updateAnalysis()"><option value="satisfaction">Overall satisfaction</option><option value="frequency">Weekly platform usage</option><option value="challenge">Biggest reported challenge</option></select>
+   <div id="analysisResult" class="result show"></div>
+   <div class="actions"><button class="btn primary" onclick="downloadCSV()">↓ Export sample CSV</button><button class="btn" onclick="updateAnalysis()">Refresh summary</button></div>
+  </div>
+  <div class="panel">
+   <h3>Analysis workflow</h3><p class="sub">A practical sequence for a clear and responsible research project.</p>
+   <div class="question"><span><b>01</b> Clean and validate responses</span><span class="tag">Prepare</span></div>
+   <div class="question"><span><b>02</b> Summarize counts and averages</span><span class="tag">Describe</span></div>
+   <div class="question"><span><b>03</b> Compare groups carefully</span><span class="tag">Explore</span></div>
+   <div class="question"><span><b>04</b> Report findings and limitations</span><span class="tag">Communicate</span></div>
+   <div class="notice">AI can help draft questions and summarize patterns. Check outputs for bias, protect respondent privacy, and verify conclusions against the underlying data.</div>
+  </div>
+ </div>
+</section>
+</main>
+<footer>SurveyLab · AI Survey Design &amp; Analysis Project · Interactive demo with illustrative data</footer>
+</div>
+<script>
+const demoData = [
+ {id:1,satisfaction:4,frequency:"Daily",challenge:"Internet access"},
+ {id:2,satisfaction:5,frequency:"Daily",challenge:"Distractions"},
+ {id:3,satisfaction:3,frequency:"3–4 days",challenge:"Internet access"},
+ {id:4,satisfaction:4,frequency:"3–4 days",challenge:"Limited interaction"},
+ {id:5,satisfaction:2,frequency:"1–2 days",challenge:"Distractions"},
+ {id:6,satisfaction:4,frequency:"Daily",challenge:"Limited interaction"},
+ {id:7,satisfaction:3,frequency:"1–2 days",challenge:"Internet access"},
+ {id:8,satisfaction:5,frequency:"Daily",challenge:"Distractions"},
+ {id:9,satisfaction:4,frequency:"3–4 days",challenge:"Limited interaction"},
+ {id:10,satisfaction:3,frequency:"Rarely",challenge:"Internet access"},
+ {id:11,satisfaction:4,frequency:"Daily",challenge:"Distractions"},
+ {id:12,satisfaction:5,frequency:"3–4 days",challenge:"Limited interaction"}
+];
+function generateSurvey(){
+ const topic=document.getElementById('topic').value.trim()||'Your research topic';
+ const audience=document.getElementById('audience').value;
+ const goal=document.getElementById('goal').value.trim()||'understand respondent experiences';
+ const types=[...document.querySelectorAll('.options input:checked')].map(x=>x.value);
+ const chosen=types.length?types:['Multiple choice','Rating scale','Open-ended'];
+ const prompts=[
+  {q:`How familiar are you with ${topic.toLowerCase()}?`,t:'Multiple choice'},
+  {q:`How would you rate your experience related to this topic?`,t:'Rating scale'},
+  {q:`What is the main challenge you have experienced?`,t:'Open-ended'},
+  {q:`What one improvement would help you most?`,t:'Open-ended'},
+  {q:`How likely are you to recommend or continue using it?`,t:'Rating scale'},
+  {q:`Which option best describes your experience?`,t:'Multiple choice'}
+ ];
+ const list=document.getElementById('questionList');
+ list.innerHTML='';
+ prompts.filter((p,i)=>chosen.includes(p.t)||(chosen.includes('Yes / No')&&i===4)).slice(0,5).forEach((p,i)=>{
+  const row=document.createElement('div'); row.className='question';
+  const span=document.createElement('span'); span.innerHTML=`<b>Q${i+1}</b>`;
+  span.appendChild(document.createTextNode(p.q));
+  const tag=document.createElement('span'); tag.className='tag'; tag.textContent=p.t;
+  row.append(span,tag); list.appendChild(row);
+ });
+ const notice=document.getElementById('surveyNotice');
+ notice.className='result show';
+ notice.innerHTML=`<strong>Draft created</strong><br>Topic: ${escapeHTML(topic)}<br>Audience: ${escapeHTML(audience)}<br>Goal: ${escapeHTML(goal)}<br><br>This is a suggested draft, not an externally validated questionnaire. Review wording and test it with a small group before use.`;
+}
+function resetSurvey(){
+ document.getElementById('topic').value='Student experience with online learning';
+ document.getElementById('audience').selectedIndex=0;
+ document.getElementById('goal').value='Understand satisfaction, challenges, and preferred improvements.';
+ document.querySelectorAll('.options input').forEach((x,i)=>x.checked=i<3);
+ generateSurvey();
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function updateAnalysis(){
+ const key=document.getElementById('metricSelect').value;
+ const box=document.getElementById('analysisResult');
+ let html='';
+ if(key==='satisfaction'){
+  const avg=demoData.reduce((s,d)=>s+d.satisfaction,0)/demoData.length;
+  const positive=demoData.filter(d=>d.satisfaction>=4).length;
+  html=`<strong>Overall satisfaction</strong><br>Average rating: ${avg.toFixed(1)} out of 5<br>${positive} of ${demoData.length} sample respondents (${Math.round(positive/demoData.length*100)}%) rated satisfaction 4 or 5.<br><br><strong>Interpretation:</strong> Responses lean positive in this small illustrative sample; this is not representative evidence.`;
+ }else if(key==='frequency'){
+  const counts={};demoData.forEach(d=>counts[d.frequency]=(counts[d.frequency]||0)+1);
+  html='<strong>Weekly platform usage</strong><br>'+Object.entries(counts).map(([k,v])=>`${escapeHTML(k)}: ${v} respondents (${Math.round(v/demoData.length*100)}%)`).join('<br>')+'<br><br><strong>Interpretation:</strong> Daily use is the most common category in this example dataset.';
+ }else{
+  const counts={};demoData.forEach(d=>counts[d.challenge]=(counts[d.challenge]||0)+1);
+  html='<strong>Biggest reported challenge</strong><br>'+Object.entries(counts).map(([k,v])=>`${escapeHTML(k)}: ${v} respondents`).join('<br>')+'<br><br><strong>Interpretation:</strong> Compare categories with context before making recommendations.';
+ }
+ box.innerHTML=html; box.classList.add('show');
+}
+function downloadCSV(){
+ const rows=[['respondent_id','satisfaction_rating_1_to_5','weekly_usage','biggest_challenge'],...demoData.map(d=>[d.id,d.satisfaction,d.frequency,d.challenge])];
+ const csv=rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='surveylab_sample_responses.csv';a.click();URL.revokeObjectURL(url);
+}
+updateAnalysis();
+</script>
+</body>
+</html>
